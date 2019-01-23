@@ -35,24 +35,37 @@ with loompy.connect(r"loom_files\l5_all.agg.loom") as ds:
     description = ds.ca["Description"]
 
 
-# cell type subset
-iCells = []
-for i, location in enumerate(region):
-    if "Hippocampus" in location:
-        iCells.append(i)
-matrix_hippocampus= matrix_iss_genes[:,iCells]
-np.shape(matrix_hippocampus)
-
-
-# write to tab separated file
-with open("Hippocampus_iss_genes.agg.txt", 'w') as f:
+# write all cell types to tab separated file
+with open("All_iss_genes.agg.txt", 'w') as f:
     f.write("gene\t")
-    for j in range(np.shape(matrix_hippocampus)[1]):
-        f.write("%s-%s\t" % (cluster_names[iCells[j]], description[iCells[j]]))
+    for j in range(np.shape(matrix_iss_genes)[1]):
+        f.write("%s-%s\t" % (cluster_names[j], description[j]))
     f.write("\n")
     for i in range(99):
         f.write("%s\t" % iss_genes[order[i]])
-        for j in range(np.shape(matrix_hippocampus)[1]):
-            f.write("%f\t" % matrix_hippocampus[i,j])
+        for j in range(np.shape(matrix_iss_genes)[1]):
+            f.write("%f\t" % matrix_iss_genes[i,j])
         f.write("\n")
+
+
+# # cell type subset
+# iCells = []
+# for i, location in enumerate(region):
+#     if "Hippocampus" in location:
+#         iCells.append(i)
+# matrix_hippocampus= matrix_iss_genes[:,iCells]
+# np.shape(matrix_hippocampus)
+
+
+# # write to tab separated file
+# with open("All_iss_genes.agg.txt", 'w') as f:
+#     f.write("gene\t")
+#     for j in range(np.shape(matrix_hippocampus)[1]):
+#         f.write("%s-%s\t" % (cluster_names[iCells[j]], description[iCells[j]]))
+#     f.write("\n")
+#     for i in range(99):
+#         f.write("%s\t" % iss_genes[order[i]])
+#         for j in range(np.shape(matrix_hippocampus)[1]):
+#             f.write("%f\t" % matrix_hippocampus[i,j])
+#         f.write("\n")
 
