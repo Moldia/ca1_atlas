@@ -17,15 +17,6 @@ end
 % load(o.CellMapFile); % CellMap and y0, y1, x0, x1 that are its coords in full image
 
 %% diagnostic parameters in local coordinates
-% o.CellCallShowCenter = [15070 6357];
-% o.CellCallShowRad = 200;
-% o.ExampleCellCenter = o.CellCallShowCenter;
-Class1 = 'Cck.Cxcl14.Calb1.Tnfaip8l3';
-Class2 = 'Zero';
-
-% exclude genes that are useless, which is none of them?
-%  ExcludeGenes = {'3110035E14Rik', 'Vsnl1', 'Atp1b1', 'Slc24a2', 'Tmsb10', 'Calm2', 'Gap43', 'Fxyd6'};
-% ExcludeGenes = {'Vsnl1'};
 
 % overwrite if specified in o
 if ~isempty(o.ExcludeGenes)
@@ -49,12 +40,24 @@ y1 = max(o.CellCallRegionYX(:,1));
 x1 = max(o.CellCallRegionYX(:,2));
 
 %% get info about cells
-rp = regionprops(CellMap);
-CellYX = fliplr(vertcat(rp.Centroid)) + [y0 x0]; % convert XY to YX
-CellArea0 = vertcat(rp.Area); 
+if size(CellMap, 2) > 2
+    rp = regionprops(CellMap);
+    CellYX = fliplr(vertcat(rp.Centroid)) + [y0 x0]; % convert XY to YX
+    CellArea0 = vertcat(rp.Area); 
+
+    SpotInCell = IndexArrayNan(CellMap, (SpotYX - [y0 x0])');
+else
+    SpotInCell = CellMap{1};
+    CellYX = zeros(max(SpotInCell), 2);
+    CellArea0 = zeros(max(SpotInCell), 1);
+    CellYX(CellMap{2}(:,1),:) = fliplr(CellMap{2}(:,4:5));
+    CellArea0(CellMap{2}(:,1)) = CellMap{2}(:,3);
+end
+
 
 MeanCellRadius = mean(sqrt(CellArea0/pi))*.5; % the dapi part is only half of the typical radius
 RelCellRadius = [sqrt(CellArea0/pi)/MeanCellRadius; 1]; % but here we want the whole thing
+
 
 %% get arrays ready
 
@@ -102,7 +105,6 @@ D = -Dist.^2./(2*MeanCellRadius^2) - log(2*pi*MeanCellRadius^2); % don't normali
 D(:,end) = log(o.MisreadDensity); % this is log likelihood of misread
 
 % any inside cell radius given a bonus
-SpotInCell = IndexArrayNan(CellMap, (SpotYX - [y0 x0])');
 if Neighbors(SpotInCell>0,1)~=SpotInCell(SpotInCell>0)
     error('a spot is in a cell not closest neighbor!');
 end
@@ -132,6 +134,7 @@ eGeneGamma = ones(nG,1); % start with just 1
 
 % this is to check convergence
 pSpotNeighbOld = zeros(nS, nN);
+
 
 %% now main loop
 for i=1:o.CellCallMaxIter
