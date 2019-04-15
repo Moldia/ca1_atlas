@@ -78,7 +78,12 @@ nC = size(CellYX,1)+1; % last is misreads
 nS = size(SpotYX,1);
 nN = o.nNeighbors+1; % last is misreads (always a neighbor)
 
-ClassPrior = [.5*ones(1,nK-1)/nK .5];
+if contains(lower(ClassMeanExpression(end,1)), 'prior')
+    ClassPrior = [.5*cell2mat(ClassMeanExpression(end, 2:end))/sum(cell2mat(ClassMeanExpression(end, 2:end))) .5];
+    ClassMeanExpression = ClassMeanExpression(1:end-1,:);
+else
+    ClassPrior = [.5*ones(1,nK-1)/nK .5];
+end
 
 
 ClassDisplayNames = ClassNames;
