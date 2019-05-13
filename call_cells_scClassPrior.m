@@ -131,8 +131,11 @@ pSpotNeighbOld = zeros(nS, nN);
 
 %% before optimization starts
 
-if nargin<4
-    iExampleCell = 1:nC;
+if nargin<4 && ~isempty(o.CellCallShowCenter)
+    iExampleCell = iss_find_cell(liplr(o.CellCallShowCenter), o);
+    iExampleCell = iExampleCell(1);
+else
+    iExampleCell = ceil(nC/2);
 end
 
 if ~isempty(o.CellCallShowCenter) && o.Graphics==2
@@ -283,7 +286,7 @@ for i=1:o.CellCallMaxIter
             'color', 'r', 'fontsize', 12, 'FontWeight', 'bold', 'HorizontalAlignment', 'center');
         
         % zoom in to our axis
-        if ~isempty(o.CellCallShowCenter)
+        if ~isempty(o.CellCallShowCenter)  &&  o.Graphics==2
             axis image
             axis(reshape(fliplr([o.CellCallShowCenter;o.CellCallShowCenter])...
                 +[-o.CellCallShowRad; o.CellCallShowRad], 1, 4));
