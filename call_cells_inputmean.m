@@ -47,7 +47,7 @@ if size(CellMap, 2) > 2
 
     SpotInCell = IndexArrayNan(CellMap, (SpotYX - [y0 x0])');
 else
-    SpotInCell = CellMap{1};
+    SpotInCell = CellMap{1}(IncludeSpot);
     CellYX = zeros(max(SpotInCell), 2);
     CellArea0 = zeros(max(SpotInCell), 1);
     CellYX(CellMap{2}(:,1),:) = fliplr(CellMap{2}(:,4:5));
